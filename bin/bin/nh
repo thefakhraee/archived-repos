@@ -1,0 +1,241 @@
+#!/usr/bin/env bash
+# @awk @array @case @getops @ss
+#set -x
+conf="$HOME/.config/nh"
+
+die() {
+  printf '%s\n' "${1}" >&2 && exit 1
+}
+
+help() {
+  cat << EOF
+usage: nh: net helper
+       [h|help]                     this help
+       [a|add]                      add routes from config
+       [d|delete]                   delete routes from config
+       [e|default] dev              list and switch default route
+       [f|off]                      poff
+       [g|get] url dev              wget url with dev
+       [i|ir]                       whois .ir
+       [l|listip] dev               list ips with iface
+       [m|myip] dev                 show my ip
+       [n|domainrt] fqdn dev|rm     route domain from dev
+       [o|on]                       pon
+       [p|ping] dev                 ping using dev
+       [q|fqdn] domain              check if the domain is fqdn
+       [s|socket]                   stop or start ssh socket
+       [t|top]                      top ips
+       [__lcomplete]                for shell completion
+
+config:
+      # ping
+      ping_host=9.9.9.9
+      ping_count=2
+
+      # ssh socket
+      ssh_socket_host=
+      ssh_socket_port=
+
+      # ppp connections
+      pppcons=(ppp1 ppp2)
+
+      # routes
+      routes=("192.168.1.2 via 172.16.0.1"
+              "192.168.2.0/24 dev ppp1" 
+              "192.168.3.0/24 dev ppp2" 
+      )
+EOF
+}
+
+# read variables
+[[ -e "${conf}" ]] && source "${conf}" || \
+{ help; die "ERROR: ${conf} not found"; }
+
+# add routes from config
+ip_route() {
+  for rt in "${routes[@]}"; do
+    sudo ip r "${1}" ${rt}
+  done
+}
+
+# change default route
+default_route() {
+  ls_them() { ip r | awk '/default/ {print $1,$3}';
+              ls /sys/devices/virtual/net/ | grep -v lo; }
+  [[ -z "${1}" ]] && ls_them && return
+  sudo ip r d default
+  sudo ip r a default dev "${1}"
+}
+
+# ppp connections
+ppp_connections() {
+  for ppp in "${pppcons[@]}"; do
+    "${1}" "${ppp}"
+    sleep 1
+  done
+}
+
+# wget with interface
+wgw() {
+  [[ -z "${1}" ]] || [[ -z "${2}" ]] && die "Error"
+  fqdn "${1#http://}"
+  wget --bind-address=$(list_ipiface "${2}") "${1}"
+}
+
+# whois .ir
+ir() {
+  whois $1.ir | less
+}
+
+# list interfaces with ip
+list_ipiface() {
+  [[ -n "${1}" ]] && { regex="${1}"; \
+  ip -4 a | awk -v mt="${regex}$" 'match($0, mt) {print $2}'; } || \
+  ip -4 a | awk '/inet/ {print $NF,$2}'
+}
+
+# shows the external ip
+myip() {
+  iface="${1}"
+  the_curl() {
+    [[ -z "${iface}" ]] && curl http://icanhazip.com/ || \
+    curl --interface "${iface}" http://icanhazip.com/
+    }
+  the_curl "${iface}"  || \
+    { telnet ifcfg.me 23 2>/dev/null | awk 'FNR == 5 {print $4}';
+      echo "second try";
+    }
+}
+
+# route domain from dev
+domain_route() {
+  fqdn "${1}"
+  
+  # dig +short didn't return 1 on error
+  result=($(host -t A "${domain}" | awk '/address/ {print $4}')) || \
+  die "invalid domain name"
+
+  [[ -z "${2}" ]] && die "no action given for ${domain}" 
+  [[ $2 = 'rm' ]] && sw=d || sw=a
+  [[ $sw = a ]] && dev=$2
+  for ip in "${result[@]}"; do
+    [[ $sw = a ]] && sudo ip r a $ip dev $dev 
+    [[ $sw = d ]] && sudo ip r d $ip
+  done
+}
+
+# ping with interfaces
+ping_on() {
+  iface="${1}"
+  [[ -z "${iface}" ]] && ping -c "${ping_count}" "${ping_host}" || \
+  ping -c "${ping_count}" -I "${iface}" "${ping_host}"
+}
+
+# fqdn
+fqdn() {
+  domain="${1%%/*}"
+  # check if it is fqdn
+  echo "${domain}" | grep -qP \
+  '(?=^.{1,254}$)(^(?>(?!\d+\.)[a-zA-Z0-9_\-]{1,63}\.?)+(?:[a-zA-Z]{2,})$)' || \
+  { die "invalid domain name"; return 1; }
+}
+
+# run and kill ssh socket
+ssh_socket() {
+  eval "$(ss -4Hnlp sport = ${ssh_socket_port} | awk -F"," '{print $2}')" && \
+  [[ -n ${pid} ]] && kill -9 $pid
+  [[ "${1}" != kill ]] && \
+  ssh "${ssh_socket_host}" -MNf -D *:"${ssh_socket_port}"
+}
+
+top_ip() {
+  netstat -ntu | \
+  awk '{print $5}' | \
+  cut -d':' -f1 | \
+  sort | \
+  uniq -c | \
+  sort -rn
+}
+
+main() {
+  while :; do
+    case "${1}" in
+      h|help)
+        help
+        exit
+        ;;
+      a|add)
+        ip_route a
+        exit
+        ;;
+      d|delete)
+        ip_route d
+        exit
+        ;;
+      e|default)
+        default_route "${2}"
+        exit
+        ;;
+      f|off)
+        ppp_connections poff || die "Error"
+        exit
+        ;;
+      g|get)
+        wgw "${2}" "${3}"
+        exit
+        ;;
+      i|ir)
+        ir "${2}" || die "Error"
+        exit
+        ;;
+      l|listip)
+        list_ipiface "${2}"
+        exit
+        ;;
+      m|myip)
+        myip "${2}"
+        exit
+        ;;
+      n|domainrt)
+        domain_route "${2}" "${3}"
+        exit
+        ;;
+      o|on)
+        ppp_connections pon || die "Error"
+        exit
+        ;;
+      p|ping)
+        ping_on "${2}" || die "Error"
+        exit
+        ;;
+      q|fqdn)
+        fqdn "${2}" || die "Error"
+        exit
+        ;;
+      s|socket)
+        ssh_socket "${2}" || die "Error"
+        exit
+        ;;
+      t|top)
+        top_ip || die "Error"
+        exit
+        ;;
+      __lcomplete)
+        echo "add a delete d default e on o off f get g ir i listip l myip m domainrt n ping p fqdn q socket s top t help h ${pppcons[*]}"
+        exit
+        ;;
+      "")
+        help
+        exit
+        ;;
+      *)
+        die "Unknown option"
+        ;;
+      *)
+        break
+    esac
+    shift
+  done
+}
+
+main "${@}"

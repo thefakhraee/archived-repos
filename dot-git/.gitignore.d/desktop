@@ -1,0 +1,14 @@
+*
+!/.Xresources
+!/.config
+!/.config/autostart
+!/.config/autostart/clipit-startup.desktop
+!/.config/autostart/dropbox.desktop
+!/.config/autostart/mpd.desktop
+!/.config/autostart/pasystray.desktop
+!/.config/autostart/pulseaudio.desktop
+!/.config/autostart/safeeyes.desktop
+!/.config/clipit
+!/.config/clipit/clipitrc
+!/.config/fontconfig
+!/.config/fontconfig/fonts.conf

@@ -1,0 +1,219 @@
+# my local shell completions
+[[ -x $HOME/bin/__lcomplete ]] && source $HOME/bin/__lcomplete
+
+## Fucntions
+# find sth in smw
+fin() { 
+  find "$2" -iname "*$1*"
+}
+
+# mark it listened when parsing files using mocp
+rnmoc () {
+  rename -v 's/mp3|MP3/mp3.\[listened\]/' "`mocp -Q "%file"`"
+}
+
+lower() { 
+  rename -v 'y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/' "${1}"
+}
+
+flower() { 
+  find -type f \
+       -exec rename \
+       -v 'y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/' {} \;  
+}
+
+# update only $this repo
+update-repo() {
+  for source in "$@".list; do
+    sudo apt-get update -o Dir::Etc::sourcelist="sources.list.d/${source}" \
+                        -o Dir::Etc::sourceparts="-" \
+                        -o APT::Get::List-Cleanup="0"    
+  done
+}
+
+# courtsey of grml
+restart () {
+  exec $SHELL $SHELL_ARGS "$@"
+}
+
+# Download a file and display it locally
+uopen() {
+  emulate -L zsh
+  if ! [[ -n "$1" ]] ; then
+    print "Usage: uopen \$URL/\$file">&2
+    return 1
+  else
+    FILE=$1
+    MIME=$(curl --head $FILE | \
+           grep Content-Type | \
+           cut -d ' ' -f 2 | \
+           cut -d\; -f 1)
+    MIME=${MIME%$'\r'}
+           curl $FILE | see ${MIME}:-
+  fi
+}
+
+# Memory overview
+memusage() {
+  ps aux | awk '{if (NR > 1) print $5;
+                 if (NR > 2) print "+"}
+                 END { print "p" }' | dc
+}
+
+
+manperl(){ 
+  man "$1" | perl -00ne "print if /^\s*$2\b/"; 
+}
+
+# get file and encode to mp3
+mp3it() {
+  slashnamedot="${1}"
+  namewav="${2}"
+  namedot="${slashnamedot##*/}"
+  name="${namedot%%.*}"
+  [[ -z "${namewav}" ]] && namewav="/$(pwd)/${name/:/BADHY}.wav"
+  { mplayer -quiet -ao pcm:file="${namewav}" -vo null "${slashnamedot}" || \
+  mpv --ao=pcm --ao-pcm-file="${namewav}" --no-video "${slashnamedot}"; } &&
+  lame "${namewav}" "${name}.mp3"
+  /bin/rm "${namewav}"
+}
+
+# wrapper around virsh
+virsh() {
+  remote="${1}"
+  hv="${2}"
+  realvirsh="/usr/bin/virsh"
+  [[ "${remote}" = "--remote" ]] && shift +2 &&  \
+  "${realvirsh}" -c qemu+ssh://"${hv}"/system "$@" || \
+  "${realvirsh}" "$@"
+}
+
+# send git diff to remote server
+gdiffr() {
+  host="${1}"
+  git diff | ssh "${host}" 'cat - >/tmp/.gdiffr'
+}
+
+# du with sort
+ds() {
+  inpath="${1}"
+  [[ -z "${inpath}" ]] && inpath=.
+  du -sh "${inpath}"/* | sort -h
+}
+
+# current mpd playing song
+song() {
+  notify-send -u normal \
+              -t 5000 \
+              --hint=int:transient:1 \
+              "Now Playing" "$(mpc --host="$HOME/var/lib/mpd/socket" current)" 2>&1
+}
+
+# purge unused kernels and headers
+unuker() {
+ kv=$(uname -r|awk -F- '{print $1"-"$2}')
+ sudo aptitude purge \
+ "?installed?or(linux-headers-[0-9],linux-image-[0-9]) ?installed?not(${kv})"
+}
+
+scup() {
+  echo '#!/usr/bin/env bash\n#\n#set -x\n' >"${1}"
+  vim "${1}"
+}
+
+sshL() {
+  # 43:whois.arin.net:43
+  remotehost=$1
+  localport=$2
+  remoteport=$3
+  [[ -z ${remoteport} ]] && remoteport="${localport}"
+  sudo ssh -nfL "${localport}:${remotehost}:${remoteport}" \
+           -F $HOME/.ssh/config \
+           "${using}"
+}
+
+sshR() {
+  localport=$1
+  remoteport=$2
+  [[ -z ${remoteport} ]] && remoteport="0"
+  sudo ssh -R "${remoteport}:localhost:${localport}" \
+           -F $HOME/.ssh/config \
+           "${using}" 2>&1 >/dev/null | \
+       awk '/^Allocated/ {print $3}'
+}
+
+vssh() {
+  [[ -z "${1}" ]] && \
+  vim $HOME/.ssh/config || \
+  vim $HOME/mnt/cry/ssh/config.d/"${1}"
+}
+
+setres() {
+  w=${1}
+  h=${2}
+  z=${3}
+  mode=$(cvt ${w} ${h} ${z} | tail -1 | cut -d' ' -f2-)
+  size=${w}x${h}_${z}.00
+  output=$(xrandr | awk '/ connect/ {print $1}')
+  xrandr --newmode ${mode}
+  xrandr --addmode ${output} ${size}
+  xrandr -s ${size}
+}
+
+sndl() {
+  mpv --ao=pcm --ao-pcm-file=$2 $1
+  lame $2 && rm $2
+}
+
+wgetr() {
+  wget --no-directories --recursive --level=1 --execute robots=off "${1}"
+}
+
+## Aliases
+# vcsh
+alias v='vcsh'
+alias vs='v status| grep -B1 M'
+alias vls='v list'
+
+# ls
+alias l='ls++ --group-directories-first'
+alias ll='l --potsf'
+alias la='l -a'
+alias lla='ll -a'
+
+alias e='vim'
+alias rr='rm -ri'
+alias rm='rm -i'
+alias diff='colordiff'
+alias dush='du -csh *|sort -h'
+alias q='exit'
+alias less='less -FX'
+alias scl='sudo systemctl'
+alias scsv='curl -L http://git.io/unix'
+alias i3l='i3lock -n -f -c 000000 && echo "Login on: $(date +%a-%m%d-%H%M%S)" >>~/var/login'
+alias ii3l='i3lock -n -f -i "$HOME/.config/i3/bsod.png" && echo "Login on: $(date +%a-%m%d-%H%M%S)" >>~/var/login'
+alias ub='udisksctl mount -b'
+alias cls='$HOME/bin/ls++'
+alias trj='$HOME/bin/trans -t fa'
+alias wtt='curl wttr.in/mashhad'
+alias ly='setxkbmap -layout us,ir -option grp:ctrls_toggle,caps:escape'
+alias lightup='xbacklight -inc 10'
+alias lightdown='xbacklight -dec 10'
+alias m='. /usr/lib/mc/mc-wrapper.sh'
+alias ports='netstat -tulnap'
+alias dg='dig +{,no}short'
+alias pyweb='hostname -I && python -m SimpleHTTPServer'
+alias axl='axel -a -n 8'
+alias pgg='ping google.com'
+alias p9='ping 9.9.9.9'
+alias ssh='ssh -o ServerAliveInterval=60'
+alias sagent='eval $(ssh-agent -s)'
+alias mutt='neomutt -F ~/.config/neomutt/neomuttrc'
+alias syslog='sudo grc xtail /var/log/syslog'
+alias dkr='docker run --rm'
+
+## variables
+# dl
+dlm="$HOME/var/dl/mov"
+dla="$HOME/var/dl/aud"
+dlv="$HOME/var/dl/vid"

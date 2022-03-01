@@ -1,0 +1,69 @@
+mpd_host = "~/var/lib/mpd/socket"
+#mpd_host = localhost
+mpd_port = 6601
+ncmpcpp_directory = ~/var/lib/mpd/ncmpcpp
+lyrics_directory = ~/var/lib/music/lyric
+mpd_music_dir = ~/var/lib/music
+execute_on_song_change = bash -c "source ~/.shell && song" 
+playlist_show_remaining_time = yes
+playlist_display_mode = columns
+seek_time = 10 
+#volume_change_step = 2
+progressbar_look = =|
+#progressbar_boldness = yes
+user_interface = classic
+#statusbar_visibility = yes
+#titles_visibility = yes
+#store_lyrics_in_song_dir = no
+#generate_win32_compatible_filenames = yes
+allow_for_physical_item_deletion = yes
+show_hidden_files_in_local_browser = yes
+#startup_screen = playlist
+#jump_to_now_playing_song_at_start = yes
+#ask_before_clearing_playlists = yes
+#clock_display_seconds = no
+#display_volume_level = yes
+#display_bitrate = no
+display_remaining_time = yes 
+#mouse_support = yes
+#mouse_list_scroll_whole_page = yes
+#empty_tag_marker = <empty>
+#tags_separator = " | "
+#tag_editor_extended_numeration = no
+#enable_window_title = yes
+#search_engine_default_search_mode = 1
+external_editor = vim 
+#use_console_editor = yes
+#colors_enabled = yes
+#empty_tag_color = cyan
+#
+#header_window_color = default
+#
+#volume_color = default
+#
+#state_line_color = default
+#
+#state_flags_color = default
+#
+#main_window_color = yellow
+#
+#color1 = white
+#
+#color2 = green
+#
+#main_window_highlight_color = yellow
+#
+#progressbar_color = black
+#
+#progressbar_elapsed_color = green
+#
+#statusbar_color = default
+#
+#alternative_ui_separator_color = black
+#
+#active_column_color = red
+#
+#window_border_color = green
+#
+#active_window_border = red
+#

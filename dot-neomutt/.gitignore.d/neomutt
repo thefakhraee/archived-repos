@@ -1,0 +1,6 @@
+*
+!/.config
+!/.config/neomutt
+!/.config/neomutt/mbsyncrc
+!/.config/neomutt/msmtprc
+!/.config/neomutt/neomuttrc

@@ -1,0 +1,56 @@
+Config { 
+  font = "-misc-fixed-*-*-*-*-10-*-*-*-*-*-*-*",
+  additionalFonts = [],
+  borderColor = "black",
+  border = TopB,
+  bgColor = "black",
+  fgColor = "grey",
+  alpha = 100,
+  position = Top,
+  textOffset = -1,
+  iconOffset = -1,
+  lowerOnStart = True,
+  pickBroadest = False,
+  persistent = False,
+  hideOnStart = False,
+  iconRoot = ".",
+  allDesktops = True,
+  overrideRedirect = True,
+  commands = [ 
+    Run Cpu [ 
+      "--template", "<total>%",
+      "--Low"   , "2",
+      "--High"  , "30", 
+      "--low"   , "green",
+      "--normal", "grey",
+      "--high"  , "red"
+    ] 10, 
+    Run Memory [ 
+      "--template", "<usedratio>%",
+      "--Low"     , "20",
+      "--High"    , "80",
+      "--low"     , "green",
+      "--normal"  , "grey",
+      "--high"    , "red"
+    ] 10, 
+    Run DiskIO [
+      ("/", "<total>") 
+    ] [] 10,
+    Run DynNetwork [ 
+      "--template", "<tx>↑ <rx>↓",
+      "--Low"     , "1", -- units: B/s
+      "--High"    , "50000", -- units: B/s
+      "--low"     , "green",
+      "--normal"  , "grey",
+      "--high"    , "red"
+    ] 10, 
+    Run Date "%a %b %_d %Y %H:%M:%S" "date" 10, 
+    Run Kbd [ 
+      ("us", "<fc=#FFFFFF>US</fc>"), ("ir", "<fc=#8B0000>IR</fc>") 
+    ]
+  ],
+  sepChar = "%", 
+  alignSep = "}{", 
+  template = "%cpu% %memory% %diskio% %dynnetwork% }{ <fc=#ee9a00>%date%</fc> \
+              \ %kbd% "
+}

@@ -1,0 +1,52 @@
+# main
+set my_path = "$HOME/.config/neomutt"
+set editor = "leafpad"
+set beep = no
+set sig_dashes
+set edit_headers
+set forward_format = "Fwd: %s"
+set forward_decode
+set reverse_name
+set include
+set forward_quote
+set mail_check = 120
+set imap_keepalive = 300
+
+auto_view text/html
+
+set ssl_ca_certificates_file = "/etc/ssl/certs/ca-certificates.crt"
+set ssl_force_tls = yes
+set ssl_starttls = yes
+
+# default account
+#source $my_path/hr.mutt
+source "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.password-store/email/mutt-hr.gpg |"
+
+# fetch mail key
+bind index G imap-fetch-mail
+# purge trash
+bind index D purge-message
+# reload config
+macro index,pager <F5> ":source $my_path/neomuttrc\n" "Reload the muttrc"
+# switch account keys
+macro index,pager <f6> '<sync-mailbox><enter-command>source "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.password-store/email/mutt-hr.gpg |"<enter><change-folder>!<enter>'
+macro index,pager <f7> '<sync-mailbox><enter-command>source "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.password-store/email/mutt-mfr.gpg |"<enter><change-folder>!<enter>'
+macro index,pager <f8> '<sync-mailbox><enter-command>source "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.password-store/email/mutt-mt.gpg |"<enter><change-folder>!<enter>'
+
+
+# sidebar
+set mail_check_stats
+set sidebar_on_right = yes
+set sidebar_width = 40
+set sidebar_format = "%B%?F? [%F]?%* %?N?%N/?%S"
+bind index,pager B sidebar-toggle-visible
+bind index,pager \Cp sidebar-prev
+bind index,pager \Cn sidebar-next
+bind index,pager \Co sidebar-open
+
+# sort
+set sort = threads
+set sort_browser = date
+set sort_aux = reverse-last-date-received
+
+# theme

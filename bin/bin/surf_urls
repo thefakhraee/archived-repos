@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+for i in $(wmctrl -l|awk '/@c/{ print $1 }')
+  do xprop -id $i|awk '/URI/ && !/WM/{gsub(/"/, "", $3); print $3}'
+done

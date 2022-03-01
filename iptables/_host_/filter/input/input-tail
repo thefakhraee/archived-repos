@@ -1,0 +1,12 @@
+-A INPUT -p icmp -j REJECT --reject-with admin-prohib
+# DNS bad string
+-A INPUT -p udp -m udp --dport 53 -m string --string "com" --algo kmp --to 65535 -j DROP
+# LOG 
+#-A INPUT ! -s 192.168.0.0/16 -m limit --limit 5/min --limit-burst 10 -j LOG --log-prefix "INPUT: DROPPED"
+-A INPUT -j LOG --log-prefix "INPUT: DROPPED "
+# Drop all else
+-A INPUT -j DROP
+# fail2ban
+#-A INPUT -p tcp -m tcp --dport 22 -j fail2ban-SSH
+#-A INPUT -p tcp -m multiport --dports 22 -j fail2ban-ssh
+#-A INPUT -j REJECT --reject-with icmp-host-prohibited

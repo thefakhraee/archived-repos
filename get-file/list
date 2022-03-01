@@ -1,0 +1,6 @@
+#find . -not -path '*.git*' -not -path './list' -type f -printf '%P'
+
+debian/apt.conf
+debian/testing.list
+debian/buster.list
+init/desktop

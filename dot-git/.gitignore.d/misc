@@ -1,0 +1,14 @@
+*
+!/.aptitude
+!/.aptitude/config
+!/.config
+!/.config/apt
+!/.config/apt/01proxy
+!/.config/apt/99norecommends
+!/.config/apt/99translations
+!/.config/htop
+!/.config/htop/htoprc
+!/.config/liquidpromptrc
+!/.config/liquidprompt.theme
+!/.config/ls++
+!/.config/ls++/ls++.conf

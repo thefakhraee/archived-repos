@@ -1,0 +1,75 @@
+{
+  "builders": [
+    {
+      "iso_url": "{{ user `iso` }}",
+      "iso_checksum": "{{ user `md5` }}",
+      "iso_checksum_type": "md5",
+      "type": "qemu",
+      "accelerator": "kvm",
+      "headless": "true",
+      "output_directory": "{{ user `output` }}",
+      "disk_size": "{{ user `size` }}",
+      "disk_interface": "virtio",
+      "format": "{{ user `format` }}",
+      "vm_name": "{{ user `name` }}.{{ user `format` }}",
+      "ssh_username": "{{ user `username` }}",
+      "ssh_password": "{{ user `password` }}",
+      "ssh_port": "22",
+      "ssh_wait_timeout": "1800s",
+      "shutdown_command": "echo {{ user `password` }} | sudo -S /sbin/shutdown -P now",
+      "http_directory": ".",
+      "http_port_min": "65360",
+      "http_port_max": "65360",
+      "vnc_bind_address": "127.0.0.1",
+      "vnc_port_min": "{{ user `vnc` }}",
+      "vnc_port_max": "{{ user `vnc` }}",
+      "boot_wait": "1s",
+      "boot_command": [
+        "<esc><wait>",
+        "install <wait>",
+        "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg <wait>",
+        "debian-installer=en_US.UTF-8 <wait>",
+        "auto <wait>",
+        "locale=en_US.UTF-8 <wait>",
+        "kbd-chooser/method=us <wait>",
+        "keyboard-configuration/xkb-keymap=us <wait>",
+        "netcfg/get_hostname={{ user `name` }} <wait>",
+        "netcfg/get_domain={{ user `fqdn` }} <wait>",
+        "fb=false <wait>",
+        "debconf/frontend=noninteractive <wait>",
+        "console-setup/ask_detect=false <wait>",
+        "console-keymaps-at/keymap=us <wait>",
+        "mirror/http/hostname={{ user `apt_proxy` }} <wait>",
+        "mirror/http/directory={{ user `mirror_http_dir` }} <wait>",
+        "apt-setup/security_host={{ user `apt_proxy` }} <wait>",
+        "passwd/username={{ user `username` }} <wait>",
+        "passwd/user-fullname={{ user `username` }} <wait>",
+        "passwd/user-password={{ user `password` }} <wait>",
+        "passwd/user-password-again={{ user `password` }} <wait>",
+        "grub-installer/bootdev=/dev/{{ user `disk` }} <wait>",
+        "<enter><wait>"
+      ],
+      "qemuargs": [
+        ["-display", "none"]
+      ]  
+	  }
+	],
+  "provisioners": [ 
+    {
+      "type": "file",
+      "source": "authorized_keys",
+      "destination": "/tmp/authorized_keys"
+    },
+    {
+      "type": "shell",
+      "script": "pstuff",
+      "environment_vars": [
+        "p=rov",
+        "user={{ user `username` }}",
+        "packages={{ user `packages` }}",
+        "apt_proxy={{ user `apt_proxy` }}"
+      ],
+      "execute_command": "echo {{ user `password` }} | {{.Vars}} sudo -E -S bash '{{.Path}}'"
+    }
+  ]
+}

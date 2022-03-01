@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+IFS=$','
+arr=($(echo '' | dmenu -b -p "note"))
+unset IFS
+notify-send -t 5 "$($HOME/bin/n ${arr[0]} ${arr[1]})"

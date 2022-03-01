@@ -1,0 +1,6 @@
+# Run
+PACKER_LOG=1 packer build -var-file=vars.json debian.json
+
+# Notes
+Setting 'mirror/http/proxy' at the boot will actually use proxy even for getting
+preseed file itself.

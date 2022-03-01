@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+#[[ -z $1 ]] && echo "No server name given" && exit 1
+VROOT="$(pwd)"
+[[ -e $VROOT/rules.v4 ]] && mv $VROOT/rules.v4{,.bkup_`date +%F`}
+cd "$VROOT/_host_"
+
+bypass() {
+	echo "# Bypass" >> $VFILTER
+	echo "Bypassed: "
+	grep -v '^#' "filter/bypass" | while IFS='' read -r line || [[ -n "$line" ]]; do
+		if [[ "$line" == -* ]]; then
+			echo "$line" >> $VFILTER
+		else 
+			echo "-A INPUT -s "$line" -j ACCEPT" >> $VFILTER
+			echo "-A OUTPUT -d "$line" -j ACCEPT" >> $VFILTER
+		fi
+		echo "$line"
+	done
+	echo >> $VFILTER
+}
+
+VFILTER=$VROOT/rules.v4.filter
+cat filter/filter-header > $VFILTER
+bypass
+cat filter/input/input-{drop,accept,tail} >> $VFILTER
+cat filter/forward/forward-{accept,tail} >> $VFILTER
+cat filter/output/output-{accept,drop,tail} >> $VFILTER
+echo COMMIT >> $VFILTER
+
+VNAT=$VROOT/rules.v4.nat
+cat nat/nat-header > $VNAT
+cat nat/nat-prerouting >> $VNAT
+cat nat/nat-postrouting >> $VNAT
+echo COMMIT >> $VNAT
+
+cat $VROOT/rules.v4.filter > $VROOT/rules.v4
+cat $VROOT/rules.v4.nat >> $VROOT/rules.v4
+
+rm -f {$VFILTER,$VNAT}

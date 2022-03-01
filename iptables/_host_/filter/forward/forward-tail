@@ -1,0 +1,9 @@
+#-A FORWARD -m state --state INVALID -s 192.168.0.0/16 -j ACCEPT
+-A FORWARD ! -s 192.168.0.0/16 -m state --state INVALID -j LOG --log-prefix "FORWARD: DROP INVALID " --log-ip-options --log-tcp-options
+#-A FORWARD -m state --state INVALID -j DROP
+# SYN Floods (echo 1 > /proc/sys/net/ipv4/tcp_syncookies)
+
+# LOG 
+#-A FORWARD ! -s 192.168.0.0/16 -m limit --limit 5/min --limit-burst 10 -j LOG
+-A FORWARD -j LOG --log-prefix "FORWARD: DROPPED " 
+-A FORWARD -j DROP

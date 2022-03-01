@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+[[ -z "$1" ]] && echo "No server name given" && exit 1
+RULES="/etc/iptables/_host_/filter/input/input-drop"
+[[ -z "$1" ]] && exit 0 || IP="$1"
+[[ -z "$2" ]] && SIMU=0 || SIMU=1
+
+IFS=.
+read IP1 IP2 IP3 <<< "$IP"
+IFS=
+
+sedi() {
+   [[ $SIMU = 0 ]] && sed -i "/HERE/i -A INPUT -s "$IP".0/24 -j DROP" "$RULES" && echo "Added: " || echo "Simulation mode"
+}
+
+# for ranges...
+seda() {
+    sed -i "/HERE/a -A INPUT -s "$IP".0/24 -j DROP" "$RULES"
+}
+
+[[ $(grep -c "$IP1\.$IP2\.$IP3\." "$RULES") -ge 1 ]] && echo "Exist at: " || sedi "$IP"
+
+grep -nr "$IP1\.$IP2\.$IP3\." "$RULES" || echo "$IP doesn't exist"

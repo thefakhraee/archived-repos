@@ -1,0 +1,18 @@
+# Open the gate 
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+-A INPUT -i tun40 -j ACCEPT
+-A INPUT -i tun21034 -j ACCEPT
+-A INPUT -s 192.168.34.0/24 -j ACCEPT
+-A INPUT -s 192.168.40.0/24 -j ACCEPT
+-A INPUT -s 192.168.200.40 -j ACCEPT
+-A INPUT -s 192.168.210.199 -j ACCEPT
+-A INPUT -s 8.8.8.8 -j ACCEPT
+-A INPUT -s 4.2.2.4 -j ACCEPT
+-A INPUT -s 208.67.222.222 -j ACCEPT
+-A INPUT -d 224.0.0.1 -j ACCEPT
+-A INPUT -s 0.0.0.0 -d 255.255.255.255 -p udp -m udp --dport 67 -j ACCEPT
+# DNS name whitelist
+-A INPUT -p udp -m udp --dport 53 -m string --string "good" --algo kmp --to 65535 -j ACCEPT
+# Iface and Proto
+-A INPUT -i lo -j ACCEPT

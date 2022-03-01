@@ -1,0 +1,16 @@
+{
+    "name": "new",
+    "fqdn": "",
+    "size": "10000",
+    "output": "/v12n/domain/new/packer",
+    "iso": "/v12n/iso/debian.iso",
+    "md5": "8a3396db6aaa1ec2e33da30251be0e07",
+    "apt_proxy": "192.168.1.96:3142",
+    "mirror_http_dir": "/debian.asis.io/debian",
+    "username": "fakhraee",
+    "password": "fakhraee",
+    "vnc": "5999",
+    "disk": "vda",
+    "format": "qcow2",
+    "packages": "bzip2 acpid cryptsetup zlib1g-dev wget curl dkms make htop atop git screen qemu-guest-agent vim mc rsync ncdu grc xtail"
+}

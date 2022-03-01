@@ -1,0 +1,10 @@
+*
+!/.config
+!/.config/mc
+!/.config/mc/bindings
+!/.config/mc/hotlist
+!/.config/mc/ini
+!/.config/mc/mc.ext
+!/.config/mc/menu
+!/.config/mc/panels.ini
+!/.config/mc/Tree

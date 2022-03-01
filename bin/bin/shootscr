@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+savepath="/tmp/.shootscr"
+file="${savepath}/$(date +%m:%d:%T).png"
+[[ -d "${savepath}" ]] || mkdir "${savepath}"
+import  "${file}" && echo "${file}" 

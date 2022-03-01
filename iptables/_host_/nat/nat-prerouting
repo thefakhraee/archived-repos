@@ -1,0 +1,1 @@
+-A PREROUTING -i eth0 -p tcp -m tcp --dport 1122 -j DNAT --to-destination 192.168.34.11:22

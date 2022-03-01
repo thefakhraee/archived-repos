@@ -1,0 +1,8 @@
+# FILTER
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT DROP [0:0]
+#:fail2ban-SSH - [0:0]
+#:fail2ban-ssh - [0:0]
+

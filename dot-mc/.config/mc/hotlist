@@ -1,0 +1,4 @@
+ENTRY "/tmp" URL "/tmp"
+ENTRY "/media" URL "/media"
+ENTRY "/home/fakhraee/var/dl/aud" URL "/home/fakhraee/var/dl/aud"
+ENTRY "/mnt" URL "/mnt"

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+savedfile="$HOME/var/sync/surf_saved.$(hostname)"
+echo $savedfile
+$HOME/bin/surf_urls|sort >"${savedfile}" && cat "${savedfile}"

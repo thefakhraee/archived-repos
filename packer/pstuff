@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+set -x
+main() {
+  case "${p}" in
+    'rov')
+      prov
+      ;;
+    'ost')
+      post
+      ;;
+    *)
+      exit
+      ;;
+  esac
+}
+
+prov() {
+  # grub
+  sed -i s/quiet/console=ttyS0/g /etc/default/grub && update-grub
+
+  # apt
+  #package_list=(
+  #  bzip2 acpid cryptsetup zlib1g-dev wget curl dkms make htop atop git screen
+  #  qemu-guest-agent vim mc rsync ncdu grc xtail
+  #)
+  wget -O /etc/apt/sources.list \
+       g.fakhraee.info/get/file/raw/branch/master/debian/buster.list
+  wget -O /etc/apt/apt.conf.d/99fakhraee \
+       g.fakhraee.info/get/file/raw/branch/master/debian/apt.conf
+  sed -i s/'192.168.1.1:1234'/${apt_proxy}/g /etc/apt/apt.conf.d/99fakhraee
+  apt update
+  for package in ${packages[@]}
+  do
+    apt install -y ${package}
+  done
+
+  # ssh
+  sshdir=/home/${user}/.ssh
+  mkdir ${sshdir} && \
+  mv /tmp/authorized_keys ${sshdir} && \
+  chmod 400 ${sshdir}/authorized_keys
+}
+
+post() {
+  #"post-processors": [ 
+  #  {                 
+  #    "type": "shell-local",
+  #    "inline": "p=ost ./pstuff",                                             
+  #    "environment_vars": [                   
+  #      "cpu={{ user `cpu` }}",
+  #      "xcpu={{ user `xcpu` }}",   
+  #      "memory={{ user `memory` }}",  
+  #      "xmemory={{ user `xmemory` }}",               
+  #      "name={{ user `name` }}",                      
+  #      "apt_proxy={{ user `apt_proxy` }}",          
+  #      "image={{ user `output` }}/{{ user `name` }}/{{ user `name` }}.{{ user `format` }}"                                              
+  #    ]                                         
+  #  }                                         
+  #]
+  
+  # virt-install
+  virt-install --noautoconsole \
+               --connect qemu:///session \
+               --virt-type kvm \
+               --name ${name} \
+               --cpu host \
+               --vcpus ${cpu},maxvcpus=${xcpu} \
+               --memory ${memory},maxmemory=${xmemory} \
+               --disk path=${image},format=raw,bus=virtio,cache=none,io=native \
+               --boot hd
+}
+
+main "${@}"

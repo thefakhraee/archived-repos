@@ -1,0 +1,8 @@
+deb http://debian.asis.ai/debian testing-updates main contrib non-free
+deb http://debian.asis.ai/debian testing main contrib non-free
+
+#deb http://debian.parspack.com/debian testing-updates main contrib non-free
+#deb http://debian.parspack.com/debian testing main contrib non-free
+
+#deb http://debian.hostiran.ir/debian testing-updates main contrib non-free
+#deb http://debian.hostiran.ir/debian testing main contrib non-free

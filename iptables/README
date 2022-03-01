@@ -1,0 +1,11 @@
+## Howto
+1. Make a backup of current rules using 'iptables-save > rules.v4.orig'
+2. Change following files: grep -R _host_ . 
+3. run bin/make
+4. 'iptables-restore < rules.v4'
+
+## TODO
+1. We currently have no respect for fail2ban. Is there anyway that we can just change our own part?
+   Not fail2ban and fwsnort?
+2. Someday there may be a script to do above works.
+

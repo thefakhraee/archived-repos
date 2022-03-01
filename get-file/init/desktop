@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+make_dirs() {
+  mkdir -p -v \
+    $HOME/{bin,doc,mnt/cry,opt/w32,var/{dl,git,opt,tmp}}
+}
+
+
+install_packages() {
+  sudo apt install -y ssh htop tree git tmux screen vcsh mr cryfs zsh mc tor \
+  grc xtail neovim neomutt libterm-extendedcolor-perl proxychains highlight \
+  libnotify-bin libfribidi-bin kbdd rxvt-unicode mpd colordiff whois autojump \
+  i3 i3blocks mlterm xorg lightdm pulseaudio pavucontrol asciinema
+}
+
+
+config_stuff() {
+  rm -f $HOME/{.bashrc,.zshrc,.config/{htop/htoprc,i3/config}}
+  sudo update-alternatives --set x-terminal-emulator /usr/bin/urxvt
+  sudo chsh -s /bin/zsh $USER
+
+  # mr
+  vcsh clone https://github.com/fakhraee/dot-mr mr && mr up
+
+  # get grml zsh conf
+  wget -O "$HOME/.zshrc.grml" https://git.grml.org/f/grml-etc-core/etc/zsh/zshrc
+
+  # install source code pro font
+  git clone --depth 1 --branch release \
+  https://github.com/adobe-fonts/source-code-pro.git \
+  $HOME/.fonts/adobe-fonts/source-code-pro
+  fc-cache -f -v ~/.fonts/adobe-fonts/source-code-pro
+
+
+  # clone liquidprompt
+  git clone --depth 1 https://github.com/nojhan/liquidprompt \
+  $HOME/opt/liquidprompt
+
+  xrdb $HOME/.Xresources
+  cd $HOME/.config/i3 && ln -s config.base config && i3-msg reload
+  source $HOME/.shell
+}
+
+
+# gpg import and trust
+
+
+make_dirs
+install_packages
+config_stuff

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+db="$HOME/var/sync/note"
+show() { [[ $(which highlight) ]] && highlight -O ansi -S conf "${db}" || \
+  cat "${db}"; }
+[[ -z "${1}" ]] && { show; exit; }
+[[ "${1}" = "e" ]] && { vim "${db}"; exit; } || tag="${1}"
+[[ "${1}" = "a" ]] && data="$(xsel)" && tag="unsorted" || data="${2}"
+[[ -z "${data}" ]] && echo "Empty data" && exit
+times="$(date +'%Y%m%d %H%M%S')"
+printf "tag: ${tag}\ndata: ${data}\n"
+[[ "$(grep -ci ${tag} ${db})" -eq 0 ]] && \
+{ printf "# ${times} ${tag}\n${data}\n" >>"${db}"; exit; }
+awk -i inplace -v pattern="^#.*${tag}*" -v data="${data}" \
+    '$0 ~ pattern {print; print data; next}1' "${db}"

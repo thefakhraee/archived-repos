@@ -1,0 +1,2 @@
+-A OUTPUT -j LOG --log-prefix "OUTPUT: DROPPED "
+-A OUTPUT -j DROP

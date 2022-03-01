@@ -1,0 +1,34 @@
+[Default Applications]
+x-scheme-handler/http=surf.desktop
+x-scheme-handler/https=surf.desktop
+x-scheme-handler/ftp=surf.desktop
+x-scheme-handler/chrome=surf.desktop
+text/html=surf.desktop
+application/x-extension-htm=surf.desktop
+application/x-extension-html=surf.desktop
+application/x-extension-shtml=surf.desktop
+application/xhtml+xml=surf.desktop
+application/x-extension-xhtml=surf.desktop
+application/x-extension-xht=surf.desktop
+x-scheme-handler/tg=telegramdesktop.desktop
+image/jpeg=gpicview.desktop
+x-scheme-handler/about=surf.desktop
+x-scheme-handler/unknown=surf.desktop
+audio/mpeg=mpv.desktop
+
+[Added Associations]
+x-scheme-handler/http=surf.desktop;
+x-scheme-handler/https=surf.desktop;
+x-scheme-handler/ftp=surf.desktop;
+x-scheme-handler/chrome=surf.desktop;
+text/html=surf.desktop;
+application/x-extension-htm=surf.desktop;
+application/x-extension-html=surf.desktop;
+application/x-extension-shtml=surf.desktop;
+application/xhtml+xml=surf.desktop;
+application/x-extension-xhtml=surf.desktop;
+application/x-extension-xht=surf.desktop;
+image/jpeg=gpicview.desktop;leafpad.desktop;
+application/pdf=mupdf.desktop;
+audio/mpeg=mpv.desktop;
+text/plain=leafpad.desktop;

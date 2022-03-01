@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+url='https://www.google.com/search?q='
+query=$(echo '' | dmenu -p "search" -b)
+if [ -n "${query}" ]; then
+  surf -dg "${url}${query}" 2> /dev/null
+  exec i3-msg [class="^surf$"] focus
+fi

@@ -1,0 +1,1 @@
+complete -W "$($HOME/bin/nh __lcomplete)" -o bashdefault -o default 'nh'

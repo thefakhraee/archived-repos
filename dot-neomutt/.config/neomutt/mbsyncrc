@@ -1,0 +1,74 @@
+# hr
+IMAPAccount hr
+  Host mail.riseup.net
+  Port 993 
+  User hamsa 
+  PassCmd "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.password-store/email/riseup/hamsa@riseup.net.gpg|head -1"
+  SSLType IMAPS
+
+IMAPStore hr-server
+  Account hr
+
+MaildirStore hr-local
+  Path ~/var/wip/mailrc/Maildir/hr/
+  Inbox ~/var/wip/mailrc/Maildir/hr/INBOX
+  Flatten .
+
+Channel hr
+  Master :hr-server:
+  Slave :hr-local:
+  Patterns *
+  Create Both
+  Expunge Both
+  Sync All
+  SyncState *
+
+# mfr
+IMAPAccount mfr
+  Host mail.riseup.net
+  Port 993 
+  User morteza_fakhraee
+  PassCmd "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.password-store/email/riseup/fakhraee@riseup.net.gpg|head -1"
+  SSLType IMAPS
+
+IMAPStore mfr-server
+  Account mfr
+
+MaildirStore mfr-local
+  Path ~/var/wip/mailrc/Maildir/mfr/
+  Inbox ~/var/wip/mailrc/Maildir/mfr/INBOX
+  Flatten .
+
+Channel mfr
+  Master :mfr-server:
+  Slave :mfr-local:
+  Patterns *
+  Create Both
+  Expunge Both
+  Sync All
+  SyncState *
+
+# fv
+IMAPAccount fv
+  Host mail.vasni.ir
+  Port 993
+  User fakhraee@vasni.ir
+  PassCmd "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.password-store/work/ashena/git.10d.ir.gpg|head -1"
+  SSLType IMAPS
+
+IMAPStore fv-server
+  Account fv
+
+MaildirStore fv-local
+  Path ~/var/wip/mailrc/Maildir/fv/
+  Inbox ~/var/wip/mailrc/Maildir/fv/INBOX
+  Flatten .
+
+Channel fv
+  Master :fv-server:
+  Slave :fv-local:
+  Patterns *
+  Create Both
+  Expunge Both
+  Sync All
+  SyncState *
