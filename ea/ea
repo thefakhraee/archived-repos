@@ -1,0 +1,165 @@
+#!/usr/bin/env bash
+# @automation
+# echo -e 'ld\nlp\nln\ni'|ev
+
+
+# vars
+VERSION='1'
+EVD='/ev'
+HOST="$(hostname)"
+URI='qemu:///session'
+VIRTINST='/usr/bin/virt-install'
+VIRSH='/usr/bin/virsh --quiet'
+VXML='/usr/bin/virt-xml --quiet'
+VIRTBUILDER='/usr/bin/virt-builder'
+
+
+# main functions
+
+first_run() {
+  echo "$ps>"
+  cat << EOL
+===============
+EASY AUTOMATION
+===============
+EOL
+  echo -e " version: $VERSION\n"
+  apt_is_update=
+}
+
+
+usage() {
+  local -A usages=(
+    [h | help]='this help'
+    [q | quit | exit]='quit'
+    [v]='verbose on. enter to disable'
+    [2q]="convert raw to qcow2"
+    [:FUNC]='exec one of the underlying functions directly. empty to list them'
+    [/VIRSH_CMD]='exec virsh commands directly. empty to enter virsh shell'
+    [!COMMAND]='exec shell commands directly. empty to enter bash shell'
+  )
+
+  [[ -z "${1}" ]] && for k in "${!usages[@]}"; do
+    echo -e "[$k]\n  ${usages[$k]}\n"
+  done || echo -e "[$1]\n  ${usages[$1]}\n"
+}
+
+
+get_keyvals() {
+  for keyval in "${@}"; do
+    [[ "${keyval}" =~ '=' ]] && export "${FUNCNAME[1]}_${keyval}"
+  done
+}
+
+
+show_captcha() {
+  local captcha=$(shuf -i 10-99 -n 1)
+  read -p "$(echo -e "${captcha}\n\b")"
+  [[ "${REPLY}" = ${captcha} ]] && return 0 || return 1
+}
+
+
+finish() {
+  clear
+  printf "$ps> "
+}
+
+
+main() {
+  # trap ctrl-c
+  count=0
+  #trap finish SIGINT
+
+  ps=ea
+  first_run
+  while IFS="" read -r -e -p $"$ps> "; do
+    #history -n /tmp/.ev_history
+    history -s "${REPLY}" 2>&1
+    input=($REPLY)
+
+    case "${input}" in
+      'q'|'quit'|'exit')
+        break
+        ;;
+      'v')
+        set -x
+        ;;
+      :*)
+        [[ -z "${input[@]#:}" ]] && declare -F | awk '{print $3}' || \
+        "${input[@]#:}"
+        ;;
+      /*)
+        ${VIRSH} -c ${URI} "${input[@]#/}"
+        ;;
+      !*)
+        cmd="${input[@]#!}"
+        [[ -z "${cmd}" ]] && cmd="cd ${EVD}; bash"
+        /usr/bin/env bash -c "${cmd}"
+        ;;
+      '')
+        set +x
+        ;;
+      \#*)
+        ;;
+      *|'h'|'help')
+        usage "${input[1]}"
+        ;;
+    esac
+    ps=ea
+
+  done
+  history -a /tmp/.ea_history
+}
+
+
+# other functions
+
+apt_update() {
+  [[ ${apt_is_update} = 1 ]] || { sudo apt update; apt_is_update=1; }
+}
+
+
+apt_install() {
+  apt_install_packages="${1}"
+  apt_update
+  sudo apt install --yes "${apt_install_packages}"
+}
+
+
+file_copy_orig() {
+  file_to_copy_orig="${1}"
+  sudo cp "${file_to_copy_orig}" "${file_to_copy_orig}.orig"
+}
+
+
+systemctl_restart() {
+  service_to_restart="${1}"
+  sudo systemctl restart "${service_to_restart}"
+}
+
+
+systemctl_stopstart() {
+  service_to_stopstart="${1}"
+  sudo systemctl stop "${service_to_stopstart}"
+  sudo systemctl start "${service_to_stopstart}"
+
+}
+
+
+dnsmasq_up() {
+  dnsmasq_config_file='/etc/dnsmasq.conf'
+  apt_install dnsmasq || return
+  file_copy_orig ${dnsmasq_config_file} || return
+  sudo bash -c "cat << EOL > ${dnsmasq_config_file}
+bind-interfaces
+no-resolv
+server=/registry-1.docker.io/178.22.122.100
+server=/auth.docker.io/178.22.122.100
+server=/local.domain/192.168.1.217
+server=9.9.9.9
+EOL"
+  systemctl_stopstart dnsmasq
+}
+
+
+main "$@"
